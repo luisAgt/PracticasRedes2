@@ -1,0 +1,31 @@
+Preguntas de reflexión
+
+1. ¿Qué es un comando dentro de nuestra aplicación?
+Es una palabra especifica que el cliente envía al servidor para solicitar una acción concreta.
+
+2. ¿Por qué podemos decir que tenemos un protocolo de aplicación?
+Porque se definió un conjunto explícito de reglas, formatos y secuencia de interacción sobre la capa de transporte.
+
+3. ¿Qué ocurriría si el cliente enviara un comando que el servidor no conoce?
+Ek servidor no hace ninguna coinsidencia dentro de los bloques if y cae en el ultimo else donde no se reconoce ningun comando asi.
+
+4. ¿Por qué cliente y servidor deben conocer las reglas del protocolo?
+para garantizar interoperabilidad.
+
+5. ¿Qué diferencia existe entre un comando y un parámetro?
+comando es una instruccion principal y parametro la informacion adicional que necesita el comando.
+
+6. ¿Para qué utilizamos split() en el comando ECO?
+para separar la palabra clave del resto.
+
+7. ¿Qué ventajas tiene utilizar comandos en lugar de enviar mensajes sin una estructura definida?
+sincronizacion efectiva, manejo de errores y mantenimiento.
+
+8. ¿Qué nuevos comandos agregarías a este servidor?
+borrar archivos o carpetas, informacion sobre un archivo, renombrar
+
+9. ¿Cómo modificarías el protocolo para permitir autenticación de usuarios?
+con un comando que permita loguear a quien quiera entrar con una contraseña y un usuario, por consecuente un estado de sesión y restriccion de comandos
+
+10. ¿Qué problemas tendríamos si dos clientes intentaran utilizar este servidor al mismo tiempo?
+bloqueo del segundo cliente.

@@ -1,0 +1,21 @@
+1. ¿Cuál es la diferencia entre enviar un mensaje de texto y enviar un archivo?
+    La diferencia radica en la longitud del paquete, un mensaje plano es corto usualmente, y cabe dentro del buffer por lo que viaja "en un solo bloque". mientras que un archivo de tamaño variable no se puede almacenar en un espacio asi de un solo golpe.
+2. ¿Por qué dividimos el archivo en bloques?
+    Principalmente para no saturar el buffer del socket, porque nos permite procesar de manera mas fluida y continua
+3. ¿Qué significa rb?
+    Read Binary o Lectura en Modo Binario. es una instruccion que indica que se tiene que leer un archivo en su forma nativa de bytes
+4. ¿Qué significa wb?
+    Write Binary o Escritura en Modo Binario, esta instruccion hace que se sobreescriba un archivo.
+5. ¿Qué sucede cuando recv() devuelve una cantidad vacía de datos?
+    Indica que el extremo del socket cerro la conexcion
+6. ¿Por qué el servidor necesita escribir los datos recibidos en un archivo?
+    porque si solo guardara los bloques en variables en la RAM, los datos se perderian.
+7. ¿Qué ocurriría si utilizáramos un bloque de 10 bytes en lugar de 1024?
+    La transferencia seria mucho mas lenta.
+8. ¿Qué ventajas tiene utilizar bloques para transferir archivos grandes?
+    Mejor uso eficiente de la RAM, control y rastreo del progreso y eficiencia de red.
+9. ¿Qué ocurre si el archivo original tiene una imagen?
+    No pasa nada, esta diseñado para enviar y recibir datos en modo binario no por formatos
+10.¿Cómo podríamos modificar el programa para que el servidor también pudiera enviar archivos 
+al cliente?
+    Podria ser tener archivos guardados en el Server, y esperar una solicitud del Client para buscar cierto archivo y mandarlo.
