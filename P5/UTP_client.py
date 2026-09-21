@@ -1,7 +1,7 @@
 #!/usr/bin python3
 import socket
 
-SERVER_IP = "192.168.0.20"  # IP del Servidor Windows
+SERVER_IP = "192.168.1.32"  # IP del Servidor Windows
 
 
 def func_client(puerto_origen, puerto_destino, nombre_datagrama):
