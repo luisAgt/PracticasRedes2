@@ -1,25 +1,33 @@
 #!/usr/bin/env python3
 import socket
 
-SERVER_IP = "192.168.0.20"  # IP del Servidor Windows
+HOST = "0.0.0.0"  # Escucha en todas las interfaces disponibles de la máquina
+PORT_NAVEGADOR = 5000
+PORT_CHAT = 6000
 
+# Socket 1: Navegador (Puerto 5000)
+s_navegador = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+s_navegador.bind((HOST, PORT_NAVEGADOR))
+s_navegador.setblocking(False)  # Modo no bloqueante para revisar ambos sockets
 
-def func_client(puerto_origen, puerto_destino, nombre_datagrama):
-    # Crear socket UDP
-    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+# Socket 2: Chat (Puerto 6000)
+s_chat = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+s_chat.bind((HOST, PORT_CHAT))
+s_chat.setblocking(False)
 
-    # Se le asigna explícitamente el puerto de origen (4000, 4001, 4002)
-    sock.bind(('', puerto_origen))
+print("Servidor listo escuchando en puertos 5000 y 6000...")
 
-    # Enviar datagrama
-    mensaje = f"Datagrama {nombre_datagrama} desde puerto {puerto_origen}"
-    sock.sendto(mensaje.encode('utf-8'), (SERVER_IP, puerto_destino))
-    print(f"Enviado {nombre_datagrama}: Origen {puerto_origen} -> Destino {puerto_destino}")
+while True:
+    # Revisar puerto 5000 (Navegador)
+    try:
+        data, addr = s_navegador.recvfrom(1024)
+        print(f"[NAVEGADOR - Puerto 5000] Recibido de {addr}: {data.decode()}")
+    except BlockingIOError:
+        pass
 
-    sock.close()
-
-
-# Envío de los datagramas según el pizarrón:
-func_client(4000, 5000, "U1")  # S1 (4000) -> 5000
-func_client(4001, 5000, "U2")  # S2 (4001) -> 5000
-func_client(4002, 6000, "U3")  # S3 (4002) -> 6000
+    # Revisar puerto 6000 (Chat)
+    try:
+        data, addr = s_chat.recvfrom(1024)
+        print(f"[CHAT - Puerto 6000] Recibido de {addr}: {data.decode()}")
+    except BlockingIOError:
+        pass
