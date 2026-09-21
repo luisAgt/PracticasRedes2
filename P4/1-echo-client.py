@@ -3,7 +3,7 @@
 import socket
 import os #library for managment files and paths, etc.
 
-HOST = "192.168.1.32"  # Hostname o  dirección IP del servidor
+HOST = "192.168.1.15"  # Hostname o  dirección IP del servidor
 PORT = 65432  # Puerto del servidor
 buffer_size = 1024
 
