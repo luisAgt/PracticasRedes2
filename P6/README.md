@@ -28,7 +28,7 @@ En él se muestran los principales elementos que intervienen en la comunicación
 
 La arquitectura se divide principalmente en dos canales de comunicación: TCP para los clientes de consulta y actualización, y UDP para los clientes de notificación.
 
-![Diagrama_Arquitectura]![img/arch_diagram.png] **HACER**
+![Diagrama_Arquitectura](img/arch_diagram.png)
 
 ---
 
@@ -120,7 +120,7 @@ El servidor tendrá un único socket UDP asociado al puerto destinado al servici
 Este socket puede recibir mensajes provenientes de múltiples clientes UDP, por lo que no es necesario crear un socket independiente para cada cliente.
 
 El funcionamiento puede representarse de la siguiente manera:
-![Flujo_UDP_not]![img/socketUDP.png]
+![Flujo_UDP_not](img/socketUDP.png)
 
 El servidor puede distinguir el origen de cada mensaje mediante la información del remitente proporcionada por UDP, como la dirección IP y el puerto de origen.
 
@@ -131,7 +131,8 @@ El servidor tendrá un único socket TCP de escucha.
 Su función principal es esperar y aceptar las conexiones de los clientes TCP. Este socket no se utiliza directamente para intercambiar los datos de todos los clientes, sino que permanece esperando nuevas conexiones.
 
 El flujo general es:
-![Flujo_TCP_Conn]![img/socketTCPConnection.png]
+
+![Flujo_TCP_Conn](img/socketTCPConnection.png)
 
 El socket de escucha permanece disponible para aceptar nuevas conexiones de clientes de consulta y actualización.
 
@@ -143,5 +144,78 @@ Por lo tanto, si existen N clientes TCP conectados simultáneamente:
 Número de sockets TCP de comunicación = N
 
 Estos sockets pueden corresponder tanto a clientes de consulta como a clientes de actualización.
-![Flujo_TCP_Com]![img/socketTCPComunication.png]
+![Flujo_TCP_Com](img/socketTCPComunication.png)
 
+---
+
+## Implementacion
+
+Máquina A (Servidor): Corre server.py escuchando en los puertos 5000/TCP (Consulta/Actualización) y 5001/UDP (Notificaciones).
+
+Máquina B (Cliente Lote 1): Ejecuta 15 clientes en paralelo (5 Consulta, 3 Actualización, 7 Notificación).
+
+Máquina C (Cliente Lote 2): Ejecuta 15 clientes en paralelo (5 Consulta, 2 Actualización, 8 Notificación).
+
+1. Servidor
+ 
+    1. Preparación de red
+
+        a. Obtener la IP local de la máquina del servidor.
+         
+        ```bash
+        ip a
+        ```
+         
+        b. Identificar la interfaz de red. Esta ip se tiene que poner en los programas del cliente.
+         
+        ```bash
+        ip route
+        ``` 
+        
+    2. ejecucion
+        
+        a. Se ejecuta el comando siguiente para mentener activo el servidor
+         
+        ```bash
+        python3 server.py
+        ```
+         
+2. Cliente Maquina A
+ 
+    1. Preparación de red
+        
+        a. Se tiene que tener los siguientes programas
+         
+        ```bash
+        client_update.py
+        client_query.py
+        client_notify.py
+        run_client_1.sh
+        ```
+         
+        b. Se ejecuta el archivo .sh para simular las instancias
+         
+        ```bash
+        chmod +x run_machine_b.sh
+        ./run_machine_b.sh
+        ```  
+
+3. Cliente Maquina B
+ 
+    1. Preparación de red
+        
+        a. Se tiene que tener los siguientes programas
+         
+        ```bash
+        client_update.py
+        client_query.py
+        client_notify.py
+        run_client_2.sh
+        ```
+         
+        b. Se ejecuta el archivo .sh para simular las instancias
+         
+        ```bash
+        chmod +x run_machine_b.sh
+        ./run_machine_b.sh
+        ```
