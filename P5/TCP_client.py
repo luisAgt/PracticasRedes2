@@ -1,7 +1,7 @@
 import socket
 import sys
 
-SERVER_IP = "192.168.0.20"  # Cambia por la IP de tu servidor
+SERVER_IP = "192.168.1.32"  # Cambia por la IP de tu servidor
 SERVER_PORT = 7000
 CLIENT_PORT = 4500  # Puerto origen de la práctica
 
