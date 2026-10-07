@@ -1,5 +1,5 @@
 #!/bin/bash
-SERVER_IP="192.168.1.32" # IP de la Máquina A
+SERVER_IP="192.168.0.110" # IP de la Máquina A
 
 echo "[MACHINE B] Launching 5 Query Clients (Port 5000)..."
 for i in {1..5}; do
