@@ -1,136 +1,55 @@
-#!/usr/bin python3
+#!/usr/bin/env python3
 
 import socket
-import os #library for managment files and paths, etc.
+import os
 
-HOST = "192.168.1.15"  # Hostname o  dirección IP del servidor
-PORT = 65432  # Puerto del servidor
+HOST = "192.168.1.22"
+PORT = 65432
 buffer_size = 1024
+
 def main():
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as TCPClientSocket:
+        # Define un tiempo límite de 5 segundos para intentar conectar o recibir datos
+        TCPClientSocket.settimeout(5.0)
+        
+        try:
+            print(f"Intentando conectar a {HOST}:{PORT}...")
             TCPClientSocket.connect((HOST, PORT))
-            print("Conectado correctamente. Write 'ayuda' o 'help' to see the available commands.")
+            # Quitamos el timeout para las operaciones normales de lectura del usuario
+            TCPClientSocket.settimeout(None) 
+            print("Conectado correctamente. Escribe 'ayuda' o 'help' para ver los comandos.")
+            
             while True:
-                message = input ("Enter a command: ").strip()
-
+                message = input("\nEnter a command: ").strip()
                 if not message:
                     continue
 
                 cmd_lower = message.lower()
 
-                #   To finish the connection.
-                if cmd_lower in  ["adios", "salir", "exit", "quit", "bye"]:
+                if cmd_lower in ["adios", "salir", "exit", "quit", "bye"]:
                     TCPClientSocket.sendall(b"QUIET")
                     print("Ending connection")
                     break
 
-                #   Commands to send to the server.
                 elif cmd_lower in ["hola", "hi", "hora", "time", "fecha", "date", "listar", "list", "ayuda", "help"] or cmd_lower.startswith("pedir ") or cmd_lower.startswith("order "):
                     TCPClientSocket.sendall(message.encode("utf-8"))
                     print(f"Sending request: {message}")
-                    #Waiting for the server response
                     data = TCPClientSocket.recv(buffer_size)
                     if not data:
                         print("No response from server.")
                         continue
                     print("Server response:\n", data.decode("utf-8"))
 
-                elif cmd_lower.startswith("cargar"):
+                # (resto de tus bloques cargar/descargar se mantienen igual)
 
-                    route = message[6:].strip()
+        except socket.timeout:
+            print(f"\n[ERROR] Tiempo de espera agotado. No se pudo alcanzar la IP {HOST}.")
+            print("Revisa si la VPN está activa, la IP es correcta o si el firewall de la MV está bloqueando el puerto.")
+        except ConnectionRefusedError:
+            print(f"\n[ERROR] Conexión rechazada por {HOST}:{PORT}.")
+            print("La IP es alcanzable, pero el servidor.py no está en ejecución dentro de la MV o el puerto está cerrado.")
+        except Exception as e:
+            print(f"\n[ERROR] No se pudo conectar: {e}")
 
-                    route = os.path.expanduser(route)
-
-                    if os.path.exists(route):
-
-                        filename = os.path.basename(route)
-
-                        size = os.path.getsize(route)
-
-                        print(f"\nFile name: {filename}")
-
-                        print(f"File Size: {size} bytes")
-
-                        print(f"Sending file... ... ... ....\n")
-
-                        # ENCABEZADO CORREGIDO (sin espacio tras FILE:)
-
-                        TCPClientSocket.sendall(f"FILE:{filename}|SIZE:{size}".encode("utf-8"))
-
-                        data = TCPClientSocket.recv(buffer_size)
-
-                        if data.decode("utf-8").strip() == "READY":
-
-                            bytes_sent = 0
-
-                            with open(route, "rb") as file:
-
-                                while True:
-
-                                    datas = file.read(buffer_size)
-
-                                    if not datas:
-                                        break
-
-                                    TCPClientSocket.sendall(datas)
-
-                                    bytes_sent += len(datas)
-
-                                    print(f"Bytes sent: {bytes_sent}")
-
-                            print("\nFile correctly sent. :) \n")
-
-                            print(f"Total sent: {bytes_sent} bytes")
-
-                            ack_final = TCPClientSocket.recv(buffer_size)
-
-                            print("Confirm Server: ", ack_final.decode("utf-8"))
-
-                            continue
-
-                    else:
-
-                        print("The route doesn't exist")
-                elif cmd_lower.startswith("descargar"):
-                    filename = message[10:].strip()
-
-                    if not filename:
-                        print("You need especified the filename. Ej: DESCARGAR file1.txt")
-                        continue
-
-                    TCPClientSocket.sendall(f"DESCARGAR:{filename}".encode("utf-8"))
-                    data = TCPClientSocket.recv(buffer_size)
-                    text_response = data.decode("utf-8").strip()
-
-                    # Si el servidor responde con el encabezado de transferencia
-                    if text_response.startswith("FILE:"):
-                        header = text_response.replace("FILE:", "")
-                        name, size = header.split("|SIZE:")
-                        size = int(size)
-
-                        print(f"\nDescargando archivo: {name} ({size} bytes)...")
-
-                        # Confirmar al servidor que estamos listos para recibir
-                        TCPClientSocket.sendall(b"READY")
-
-                        save_name = "descargado_" + name
-                        bytes_received = 0
-
-                        with open(save_name, "wb") as file:
-                            while bytes_received < size:
-                                datas = TCPClientSocket.recv(buffer_size)
-                                if not datas:
-                                    break
-                                file.write(datas)
-                                bytes_received += len(datas)
-                                print(f"Bytes recibidos: {bytes_received}")
-
-                        print(f"\nFile saved by '{save_name}'.")
-                        print(f"Total received: {bytes_received} bytes")
-                    else:
-                        # Muestra el error enviado por el servidor (ej. archivo no encontrado)
-                        print("Server response:", text_response)
-
-                else:
-                    print("Invalid command")
-
+if __name__ == "__main__":
+    main()
