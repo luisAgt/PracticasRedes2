@@ -5,7 +5,7 @@ import random
 import sys
 
 # Configuración del servidor
-HOST = "127.0.0.1"
+HOST = "192.168.0.113"
 PORT = 65432
 
 # Permitir pasar el ID del sensor por argumento o usar uno por defecto
