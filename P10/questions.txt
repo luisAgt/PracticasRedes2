@@ -1,0 +1,14 @@
+    ¿Cómo el sistema operativo identifica a qué conexión pertenece cada dato recibido?
+Mediante la tupla de 4 elementos (Socket Cuádruple): IP de origen, puerto de origen, IP de destino y puerto de destino, además del descriptor de archivo único asignado en el kernel.
+
+
+   ¿Cómo el selector ayuda a manejar múltiples sensores?
+Permite vigilar múltiples descriptores de sockets simultáneamente en un solo hilo, notificando mediante multiplexación qué sockets están listos para leerse o aceptar conexiones sin bloquear el programa.
+
+   
+         ¿Por qué este enfoque escala mejor que usar un hilo por sensor?
+Menor consumo de memoria: Evita asignar una pila (stack) de varios megabytes por cada hilo cliente.Menos sobrecarga de CPU: Elimina el costo de los cambios de contexto (context switching) entre miles de hilos.   
+
+    
+            ¿Qué problemas aparecerían con miles de sensores reales?
+Límite de descriptores (ulimit): Restricciones del sistema operativo sobre la cantidad máxima de sockets abiertos por proceso.Cuello de botella en el bucle principal: Si miles de sensores envían datos al mismo tiempo, el único hilo puede saturarse procesándolos secuencialmente.Saturación de búferes: Riesgo de pérdida de paquetes si la tasa de llegada supera la capacidad de lectura del servidor.
