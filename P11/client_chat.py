@@ -3,7 +3,7 @@ import socket
 import threading
 import sys
 
-HOST = "192.168.0.113"  # IP de tu máquina virtual donde corre el servidor
+HOST = "192.168.0.104"  # IP de tu máquina virtual donde corre el servidor
 PORT = 5000
 buffer_size = 1024
 
@@ -28,10 +28,10 @@ def main():
         print(f"Error: No se pudo conectar al servidor en {HOST}:{PORT}")
         sys.exit(1)
         
-    print("Conectado al servidor")[cite: 17]
+    print("Conectado al servidor")
     
     # Enviar el nickname al inicio
-    nickname = input("Ingresa tu nombre: ").strip()[cite: 17]
+    nickname = input("Ingresa tu nombre: ").strip()
     if not nickname:
         nickname = "Anónimo"
     client_socket.sendall(nickname.encode("utf-8"))
