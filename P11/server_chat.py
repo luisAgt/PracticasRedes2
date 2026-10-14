@@ -6,31 +6,32 @@ HOST = "0.0.0.0"
 PORT = 5000
 buffer_size = 1024
 
-# Estructura compartida para almacenar los clientes conectados: {conn: nickname}
+# Estructura compartida: {conn: nickname}
 clients = {}
 clients_lock = threading.Lock()
 
 def broadcast(message, sender_conn=None):
-    """Envía un mensaje a todos los clientes conectados excepto al que lo envió."""
+    """Envía un mensaje formateado a todos los clientes conectados."""
     with clients_lock:
         for client_conn in clients:
             if client_conn != sender_conn:
                 try:
                     client_conn.sendall(message)
-                except:
-                    pass
+                except Exception as e:
+                    print(f"Error al enviar broadcast: {e}")
 
 def handle_client(client_conn, client_addr):
     """Maneja la comunicación individual con cada cliente en un hilo independiente."""
+    nickname = "Desconocido"
+    identifier = f"{client_addr[0]}:{client_addr[1]}"
     try:
-        # 1. El cliente envía su nickname al inicio
+        # 1. Recibir el nickname al inicio
         nickname_data = client_conn.recv(buffer_size)
         if not nickname_data:
             client_conn.close()
             return
         
         nickname = nickname_data.decode("utf-8").strip()
-        identifier = f"{client_addr[0]}:{client_addr[1]}"
         
         with clients_lock:
             clients[client_conn] = nickname
@@ -38,10 +39,10 @@ def handle_client(client_conn, client_addr):
         print(f"Cliente conectado: {identifier} ({nickname})")
         
         # Notificar a los demás que un usuario se unió
-        join_msg = f"[Servidor]: {nickname} se ha unido\n".encode("utf-8")
+        join_msg = f"[Servidor]: {nickname} se ha unido".encode("utf-8")
         broadcast(join_msg, sender_conn=client_conn)
         
-        # 2. Bucle para recibir y difundir mensajes del chat
+        # 2. Bucle para recibir mensajes
         while True:
             data = client_conn.recv(buffer_size)
             if not data:
@@ -49,24 +50,28 @@ def handle_client(client_conn, client_addr):
             
             message = data.decode("utf-8").strip()
             
-            # Demultiplexación lógica: Identificar quién envía el mensaje en consola
+            # Opción para desconectar si el cliente envía salir/adios
+            if message.lower() in ["salir", "adios"]:
+                print(f"[{nickname} - {identifier}] solicitó desconexión.")
+                break
+            
+            # Demultiplexación lógica en consola
             print(f"[{nickname} - {identifier}]: {message}")
             
-            # Formatear el mensaje para los demás: [Nickname]: Mensaje
-            formatted_msg = f"[{nickname}]: {message}\n".encode("utf-8")
+            # Reenviar mensajes a los demás clientes
+            formatted_msg = f"[{nickname}]: {message}".encode("utf-8")
             broadcast(formatted_msg, sender_conn=client_conn)
             
     except (ConnectionResetError, ConnectionAbortedError):
         pass
     finally:
-        # 3. Manejo de desconexiones
+        # 3. Manejo de desconexiones (limpieza)
         with clients_lock:
             if client_conn in clients:
-                nickname = clients[client_conn]
                 del clients[client_conn]
         
-        print(f"Cliente desconectado: {client_addr} ({nickname if 'nickname' in locals() else 'Desconocido'})")
-        leave_msg = f"[Servidor]: {nickname if 'nickname' in locals() else 'Un usuario'} ha abandonado el chat\n".encode("utf-8")
+        print(f"Cliente desconectado: {identifier} ({nickname})")
+        leave_msg = f"[Servidor]: {nickname} ha abandonado el chat".encode("utf-8")
         broadcast(leave_msg)
         client_conn.close()
 
@@ -81,7 +86,6 @@ def main():
     try:
         while True:
             client_conn, client_addr = server_socket.accept()
-            # Crear un nuevo thread para manejar ese cliente
             thread = threading.Thread(target=handle_client, args=(client_conn, client_addr))
             thread.daemon = True
             thread.start()

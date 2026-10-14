@@ -1,0 +1,15 @@
+Utilizar la librería threading para crear un hilo de ejecución independiente por cada cliente que se conecta al servidor.
+    Al asignar un hilo dedicado a cada cliente (threading.Thread), garantizamos concurrencia real: el servidor principal se mantiene libre escuchando nuevas conexiones en el accept(), mientras los hilos secundarios procesan de forma simultánea el flujo de entrada y salida de cada usuario. 
+    
+    
+Un diccionario global (clients = {conn: nickname}) protegido por un mecanismo de bloqueo (threading.Lock).
+    Como múltiples hilos modifican y leen la lista de usuarios conectados al mismo tiempo (cuando alguien se conecta, escribe un mensaje o se desconecta), es indispensable evitar condiciones de carrera (race conditions). El uso de un Lock asegura que las operaciones sobre la lista de clientes sean seguras y consistentes en entornos multihilo.
+    
+    
+Registrar y asociar el socket de cada cliente con su identificador único (su dirección IP, puerto y su nickname).
+    Cumple con el principio de demultiplexación lógica exigido en la práctica. Cuando el servidor recibe un paquete de red, la pila TCP del kernel sabe a qué socket pertenece a nivel de transporte, pero a nivel de aplicación nuestro código extrae el contexto del usuario para mostrar en consola de forma clara quién envió qué:
+[Juan - 192.168.0.127:54021]: Hola a todos
+
+
+Una función broadcast() que recorre el diccionario de clientes activos y reenvía el mensaje recibido a todos los sockets conectados, excluyendo (o incluyendo) al remitente
+    Es la arquitectura fundamental de cualquier sistema de chat clásico. Permite que la comunicación sea dinámica y en tiempo real, de modo que lo que escribe un cliente se replique instantáneamente en las pantallas de los demás con el formato requerido ([Nickname]: Mensaje

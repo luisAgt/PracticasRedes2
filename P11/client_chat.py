@@ -3,7 +3,7 @@ import socket
 import threading
 import sys
 
-HOST = "192.168.0.104"  # IP de tu máquina virtual donde corre el servidor
+HOST = "192.168.0.113"  # IP de tu máquina virtual
 PORT = 5000
 buffer_size = 1024
 
@@ -41,15 +41,19 @@ def main():
     recv_thread.daemon = True
     recv_thread.start()
     
-    # Bucle principal para enviar mensajes escritos por consola
+    # Bucle principal para enviar mensajes
     try:
         while True:
             message = input()
             if not message:
                 continue
-            if message.lower() in ["salir", "adios"]:
-                break
+            
+            # Enviar mensaje al servidor (incluyendo comandos de salida)
             client_socket.sendall(message.encode("utf-8"))
+            
+            if message.lower() in ["salir", "adios"]:
+                print("Desconectando...")
+                break
     except KeyboardInterrupt:
         print("\nSaliendo del chat...")
     finally:
