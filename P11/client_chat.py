@@ -1,0 +1,59 @@
+#!/usr/bin/env python3
+import socket
+import threading
+import sys
+
+HOST = "192.168.0.113"  # IP de tu máquina virtual donde corre el servidor
+PORT = 5000
+buffer_size = 1024
+
+def receive_messages(sock):
+    """Hilo secundario para recibir continuamente los mensajes del servidor."""
+    while True:
+        try:
+            data = sock.recv(buffer_size)
+            if not data:
+                print("\n[Servidor]: Conexión cerrada por el servidor.")
+                break
+            print(data.decode("utf-8"))
+        except:
+            break
+
+def main():
+    client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    
+    try:
+        client_socket.connect((HOST, PORT))
+    except ConnectionRefusedError:
+        print(f"Error: No se pudo conectar al servidor en {HOST}:{PORT}")
+        sys.exit(1)
+        
+    print("Conectado al servidor")[cite: 17]
+    
+    # Enviar el nickname al inicio
+    nickname = input("Ingresa tu nombre: ").strip()[cite: 17]
+    if not nickname:
+        nickname = "Anónimo"
+    client_socket.sendall(nickname.encode("utf-8"))
+    
+    # Iniciar hilo receptor para escuchar mensajes de otros usuarios concurrentemente
+    recv_thread = threading.Thread(target=receive_messages, args=(client_socket,))
+    recv_thread.daemon = True
+    recv_thread.start()
+    
+    # Bucle principal para enviar mensajes escritos por consola
+    try:
+        while True:
+            message = input()
+            if not message:
+                continue
+            if message.lower() in ["salir", "adios"]:
+                break
+            client_socket.sendall(message.encode("utf-8"))
+    except KeyboardInterrupt:
+        print("\nSaliendo del chat...")
+    finally:
+        client_socket.close()
+
+if __name__ == "__main__":
+    main()
