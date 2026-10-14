@@ -11,14 +11,13 @@ clients = {}
 clients_lock = threading.Lock()
 
 def broadcast(message, sender_conn=None):
-    """Envía un mensaje a todos los clientes conectados excepto al que lo envió (opcional)."""
+    """Envía un mensaje a todos los clientes conectados excepto al que lo envió."""
     with clients_lock:
         for client_conn in clients:
             if client_conn != sender_conn:
                 try:
                     client_conn.sendall(message)
                 except:
-                    # Si falla el envío, se remueve la conexión
                     pass
 
 def handle_client(client_conn, client_addr):
@@ -36,7 +35,7 @@ def handle_client(client_conn, client_addr):
         with clients_lock:
             clients[client_conn] = nickname
             
-        print(f"Cliente conectado: {identifier} ({nickname})")[cite: 17]
+        print(f"Cliente conectado: {identifier} ({nickname})")
         
         # Notificar a los demás que un usuario se unió
         join_msg = f"[Servidor]: {nickname} se ha unido\n".encode("utf-8")
@@ -77,7 +76,7 @@ def main():
     server_socket.bind((HOST, PORT))
     server_socket.listen(5)
     
-    print(f"Servidor escuchando en puerto {PORT}...")[cite: 17]
+    print(f"Servidor escuchando en puerto {PORT}...")
     
     try:
         while True:
