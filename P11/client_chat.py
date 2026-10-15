@@ -36,7 +36,7 @@ def main():
         nickname = "Anónimo"
     client_socket.sendall(nickname.encode("utf-8"))
     
-    # Iniciar hilo receptor para escuchar mensajes de otros usuarios concurrentemente
+    # Iniciar hilo receptor para escuchar mensajes de otros usuarios y del servidor
     recv_thread = threading.Thread(target=receive_messages, args=(client_socket,))
     recv_thread.daemon = True
     recv_thread.start()
@@ -48,7 +48,6 @@ def main():
             if not message:
                 continue
             
-            # Enviar mensaje al servidor (incluyendo comandos de salida)
             client_socket.sendall(message.encode("utf-8"))
             
             if message.lower() in ["salir", "adios"]:
