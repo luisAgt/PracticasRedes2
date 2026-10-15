@@ -3,7 +3,7 @@ import socket
 import threading
 import sys
 
-HOST = "192.168.0.113"  # IP de tu máquina virtual
+HOST = "192.168.1.18"  # IP de tu máquina virtual
 PORT = 5000
 buffer_size = 1024
 

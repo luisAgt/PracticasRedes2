@@ -45,26 +45,31 @@ def handle_client(client_conn, client_addr):
         
         # 2. Bucle para recibir mensajes del cliente
         while True:
-            data = client_conn.recv(buffer_size)
-            if not data:
+            try:
+                data = client_conn.recv(buffer_size)
+                if not data:
+                    break
+                
+                message = data.decode("utf-8").strip()
+                
+                if message.lower() in ["salir", "adios"]:
+                    break
+                
+                # Demultiplexación lógica en consola
+                print(f"[{nickname} - {identifier}]: {message}")
+                
+                # Reenviar mensajes a los demás clientes
+                formatted_msg = f"[{nickname}]: {message}".encode("utf-8")
+                broadcast(formatted_msg, sender_conn=client_conn)
+                
+            except (OSError, socket.error):
+                # Atrapa el error si el socket es cerrado forzosamente desde el servidor (ej. comando desconectar)
                 break
-            
-            message = data.decode("utf-8").strip()
-            
-            if message.lower() in ["salir", "adios"]:
-                break
-            
-            # Demultiplexación lógica en consola
-            print(f"[{nickname} - {identifier}]: {message}")
-            
-            # Reenviar mensajes a los demás clientes
-            formatted_msg = f"[{nickname}]: {message}".encode("utf-8")
-            broadcast(formatted_msg, sender_conn=client_conn)
-            
+                
     except (ConnectionResetError, ConnectionAbortedError):
         pass
     finally:
-        # 3. Limpieza y desconexión
+        # 3. Limpieza y desconexión segura
         with clients_lock:
             if client_conn in clients:
                 del clients[client_conn]
